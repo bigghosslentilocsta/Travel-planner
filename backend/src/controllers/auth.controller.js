@@ -107,7 +107,13 @@ export async function firebaseAuth(req, res, next) {
   try {
     const { idToken } = firebaseSchema.parse(req.body);
 
-    const decodedToken = await getAuth().verifyIdToken(idToken);
+    let decodedToken;
+    try {
+      decodedToken = await getAuth().verifyIdToken(idToken);
+    } catch {
+      return res.status(401).json({ message: "Invalid Firebase token" });
+    }
+
     if (!decodedToken.email || !decodedToken.uid) {
       return res.status(401).json({ message: "Invalid Firebase token" });
     }
