@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: travel-planner-backend
+    env: node
+    root: backend
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        value: ""
+      - key: JWT_SECRET
+        value: ""
+      - key: CLIENT_ORIGIN
+        value: ""
+      - key: FIREBASE_PROJECT_ID
+        value: ""
+      - key: FIREBASE_CLIENT_EMAIL
+        value: ""
+      - key: FIREBASE_PRIVATE_KEY
+        value: ""
+      - key: TEXT_LLM_API_KEY
+        value: ""
+      - key: TEXT_LLM_API_URL
+        value: ""
+
+  - type: static
+    name: travel-planner-frontend
+    env: static
+    root: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_FIREBASE_API_KEY
+        value: ""
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        value: ""
+      - key: VITE_FIREBASE_PROJECT_ID
+        value: ""
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        value: ""
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        value: ""
+      - key: VITE_FIREBASE_APP_ID
+        value: ""
+      - key: VITE_FIREBASE_MEASUREMENT_ID
+        value: ""
