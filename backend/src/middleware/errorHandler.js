@@ -1,4 +1,5 @@
 export function errorHandler(error, _req, res, _next) {
+  // Sends a consistent JSON error response.
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal server error";
 

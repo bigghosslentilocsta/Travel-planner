@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { User } from "../models/User.js";
 
+// Handles local and Firebase-based authentication flows.
 const signupSchema = z.object({
   name: z.string().min(2).max(80),
   email: z.string().email(),
@@ -19,6 +20,7 @@ const firebaseSchema = z.object({
   idToken: z.string().min(20)
 });
 
+// Creates the signed session token returned by auth endpoints.
 function signToken(user) {
   return jwt.sign(
     { userId: user._id.toString(), email: user.email, name: user.name },
@@ -27,6 +29,7 @@ function signToken(user) {
   );
 }
 
+// Creates a local email/password account.
 export async function signup(req, res, next) {
   try {
     const input = signupSchema.parse(req.body);
@@ -62,6 +65,7 @@ export async function signup(req, res, next) {
   }
 }
 
+// Validates local credentials and returns a session token.
 export async function login(req, res, next) {
   try {
     const input = loginSchema.parse(req.body);
@@ -98,6 +102,7 @@ export async function login(req, res, next) {
   }
 }
 
+// Exchanges a Firebase ID token for an app session token.
 export async function firebaseAuth(req, res, next) {
   try {
     const { idToken } = firebaseSchema.parse(req.body);

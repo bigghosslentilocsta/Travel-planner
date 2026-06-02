@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Persists chat messages exchanged inside a trip.
 const messageSchema = new mongoose.Schema(
   {
     trip: { type: mongoose.Schema.Types.ObjectId, ref: "Trip", required: true, index: true },

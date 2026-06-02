@@ -1,3 +1,4 @@
+// Manages expense entry and settlement summaries.
 import { useState, type FormEvent } from "react";
 import { BadgeDollarSign } from "lucide-react";
 import type { Expense, Settlement, SettledRecord, Trip } from "../../types";
@@ -21,10 +22,12 @@ type ExpensePanelProps = {
   }) => Promise<void>;
 };
 
+// Manages expense entry and settlement summaries.
 export function ExpensePanel({ trips, selectedTripId, onSelectTrip, currentUserId, expenses, settlements, settledRecords, onAddExpense, onSettleExpense }: ExpensePanelProps) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
 
+  // Submits a new shared expense.
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     await onAddExpense({ description, amount });

@@ -1,3 +1,4 @@
+// Shows trip cards plus create/join/delete controls.
 import { useMemo, useState, type FormEvent } from "react";
 import { usePlannerStore } from "../../store/usePlannerStore";
 import { motion } from "framer-motion";
@@ -22,6 +23,7 @@ type TripGridProps = {
   onDeleteTrip: (tripId: string) => Promise<void>;
 };
 
+// Shows trip cards plus create, join, and delete controls.
 export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, onJoinTrip, onDeleteTrip }: TripGridProps) {
   const [title, setTitle] = useState("");
   const [destination, setDestination] = useState("");
@@ -36,6 +38,7 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
     [inviteInput]
   );
 
+  // Submits the create-trip form.
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     await onCreateTrip({ title, destination, startDate, endDate, invitedEmails });
@@ -47,6 +50,7 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
     setInviteInput("");
   }
 
+  // Submits the join-trip form.
   async function handleJoinSubmit(event: FormEvent) {
     event.preventDefault();
     await onJoinTrip({

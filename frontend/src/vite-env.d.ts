@@ -1,3 +1,4 @@
+// Extends Vite's env typing with app-specific variables.
 /// <reference types="vite/client" />
 
 declare interface ImportMetaEnv {

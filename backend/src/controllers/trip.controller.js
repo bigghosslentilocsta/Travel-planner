@@ -4,6 +4,7 @@ import { Expense } from "../models/Expense.js";
 import { Itinerary } from "../models/Itinerary.js";
 import { Trip } from "../models/Trip.js";
 
+// Manages trip creation, membership, and trip-level updates.
 const createTripSchema = z.object({
   title: z.string().min(2).max(120),
   destination: z.string().min(2).max(120),
@@ -21,6 +22,7 @@ const inviteSchema = z.object({
   email: z.string().email()
 });
 
+// Generates a short invite code for a trip.
 function generateTripCode(length = 6) {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -30,6 +32,7 @@ function generateTripCode(length = 6) {
   return code;
 }
 
+// Keeps generating codes until one is unused.
 async function createUniqueTripCode() {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const tripCode = generateTripCode();
@@ -42,6 +45,7 @@ async function createUniqueTripCode() {
   throw new Error("Failed to generate a unique trip code");
 }
 
+// Returns all trips that include the current user.
 export async function listTrips(req, res, next) {
   try {
     const trips = await Trip.find({ members: req.user.userId })
@@ -55,6 +59,7 @@ export async function listTrips(req, res, next) {
   }
 }
 
+// Creates a new trip and optional invitation records.
 export async function createTrip(req, res, next) {
   try {
     const input = createTripSchema.parse(req.body);
@@ -83,6 +88,7 @@ export async function createTrip(req, res, next) {
   }
 }
 
+// Adds a user to a trip when they provide a valid invite code.
 export async function inviteMember(req, res, next) {
   try {
     const { tripId } = req.params;
@@ -112,10 +118,12 @@ export async function inviteMember(req, res, next) {
   }
 }
 
+// Escapes trip names before building a case-insensitive search.
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Lets a user join a trip by name and invite code.
 export async function joinTrip(req, res, next) {
   try {
     const input = joinTripSchema.parse(req.body);
@@ -147,6 +155,7 @@ export async function joinTrip(req, res, next) {
   }
 }
 
+// Removes a trip when requested by a member.
 export async function deleteTrip(req, res, next) {
   try {
     const { tripId } = req.params;

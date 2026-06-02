@@ -4,6 +4,7 @@ import { Settlement } from "../models/Settlement.js";
 import { Trip } from "../models/Trip.js";
 import { calculateSettlements } from "../utils/calculateSettlements.js";
 
+// Tracks shared expenses and settlement summaries.
 const expenseSchema = z.object({
   description: z.string().min(2).max(200),
   amount: z.number().positive()
@@ -15,6 +16,7 @@ const settleSchema = z.object({
   amount: z.number().positive()
 });
 
+// Loads a trip only when the user belongs to it.
 async function getTripIfMember(tripId, userId) {
   const trip = await Trip.findById(tripId).populate("members", "name email");
   if (!trip) return null;
@@ -25,6 +27,7 @@ async function getTripIfMember(tripId, userId) {
   return trip;
 }
 
+// Lists expenses and settlement state for a trip.
 export async function listExpenses(req, res, next) {
   try {
     const { tripId } = req.params;
@@ -61,6 +64,7 @@ export async function listExpenses(req, res, next) {
   }
 }
 
+// Adds a new expense and recalculates the split.
 export async function addExpense(req, res, next) {
   try {
     const { tripId } = req.params;
@@ -113,6 +117,7 @@ export async function addExpense(req, res, next) {
   }
 }
 
+// Records a manual settlement payment between two users.
 export async function settleExpense(req, res, next) {
   try {
     const { tripId } = req.params;

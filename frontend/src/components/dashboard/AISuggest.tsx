@@ -1,3 +1,4 @@
+// Requests and exports AI-generated itinerary suggestions.
 import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { apiFetch } from "../../api/client";
@@ -18,6 +19,7 @@ type GeneratedItinerary = {
   }[];
 };
 
+// Parses model output into the itinerary shape used by the UI.
 function parseItineraryFromText(value: string | null): GeneratedItinerary | null {
   const raw = (value || "").trim();
   if (!raw) return null;
@@ -25,6 +27,7 @@ function parseItineraryFromText(value: string | null): GeneratedItinerary | null
   const blockMatch = raw.match(/```json\s*([\s\S]*?)```/i);
   const jsonText = blockMatch ? blockMatch[1].trim() : raw;
 
+  // Tries a strict JSON parse first.
   const tryParse = (candidate: string) => {
     const parsed = JSON.parse(candidate);
     if (!parsed || !Array.isArray(parsed.days)) return null;
@@ -75,6 +78,7 @@ function parseItineraryFromText(value: string | null): GeneratedItinerary | null
   }
 }
 
+// Requests and exports AI-generated itinerary suggestions.
 export function AISuggest({ tripId, token, destination }: { tripId: string | null; token: string | null; destination?: string }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -86,6 +90,7 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
 
   if (!tripId) return null;
 
+  // Exports the generated itinerary as a PDF file.
   function downloadAsPdf() {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -94,6 +99,7 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
     const maxTextWidth = pageWidth - margin * 2;
     let y = margin;
 
+    // Adds a new page when the PDF content runs low on space.
     const ensureSpace = (requiredHeight = 18) => {
       if (y + requiredHeight > pageHeight - margin) {
         doc.addPage();
@@ -101,6 +107,7 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
       }
     };
 
+    // Writes wrapped paragraphs into the PDF.
     const writeWrapped = (text: string, fontSize = 11, lineHeight = 16) => {
       const lines = doc.splitTextToSize(text, maxTextWidth);
       doc.setFontSize(fontSize);
@@ -159,6 +166,7 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
     doc.save(`${safeTitle}.pdf`);
   }
 
+  // Requests a fresh AI itinerary from the backend.
   async function handleSuggest() {
     const dest = destInput.trim();
     if (!dest) {

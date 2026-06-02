@@ -1,11 +1,14 @@
 import { Message } from "../models/Message.js";
 import { Trip } from "../models/Trip.js";
 
+// Stores and broadcasts trip chat messages.
+// Checks that the user is allowed to read or write this trip chat.
 async function requireTripMember(tripId, userId) {
   const trip = await Trip.findOne({ _id: tripId, members: userId }).select("_id").lean();
   return trip;
 }
 
+// Loads the chat history for a trip.
 export async function listMessages(req, res, next) {
   try {
     const { tripId } = req.params;
@@ -23,6 +26,7 @@ export async function listMessages(req, res, next) {
   }
 }
 
+// Persists a new chat message and emits it over sockets.
 export async function postMessage(req, res, next) {
   try {
     const { tripId } = req.params;

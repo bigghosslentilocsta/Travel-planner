@@ -1,3 +1,4 @@
+/* Global theme tokens and base page styling. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

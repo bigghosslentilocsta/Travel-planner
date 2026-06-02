@@ -2,6 +2,7 @@ import { Router } from "express";
 import { addExpense, listExpenses, settleExpense } from "../controllers/expense.controller.js";
 import { authRequired } from "../middleware/auth.js";
 
+// Routes shared expense and settlement operations.
 const router = Router({ mergeParams: true });
 
 router.use(authRequired);

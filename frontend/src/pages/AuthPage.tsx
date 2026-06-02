@@ -1,3 +1,4 @@
+// Handles local signup, login, and Firebase sign-in.
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useState, type FormEvent } from "react";
 import { apiFetch } from "../api/client";
@@ -16,6 +17,7 @@ type AuthResponse = {
   };
 };
 
+// Handles local signup, login, and Firebase sign-in.
 export function AuthPage({ onAuthenticated }: AuthPageProps) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
@@ -25,6 +27,7 @@ export function AuthPage({ onAuthenticated }: AuthPageProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Exchanges a Firebase token for an app session token.
   async function exchangeFirebaseToken(idToken: string) {
     const data = await apiFetch<AuthResponse>("/auth/firebase", {
       method: "POST",
@@ -35,6 +38,7 @@ export function AuthPage({ onAuthenticated }: AuthPageProps) {
     onAuthenticated(data.token);
   }
 
+  // Submits the local auth form.
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -76,6 +80,7 @@ export function AuthPage({ onAuthenticated }: AuthPageProps) {
     }
   }
 
+  // Opens the Google popup flow.
   async function handleGooglePopup() {
     setError("");
     setLoading(true);

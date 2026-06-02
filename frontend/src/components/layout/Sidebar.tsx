@@ -1,3 +1,4 @@
+// Renders the main navigation and theme toggle.
 import { CalendarDays, CircleDollarSign, MapPinned, Moon, Sun } from "lucide-react";
 
 export type SidebarSection = "trips" | "itinerary" | "expenses";
@@ -15,6 +16,7 @@ const navItems = [
   { label: "Expense Split", icon: CircleDollarSign }
 ];
 
+// Renders the main navigation and theme toggle.
 export function Sidebar({ darkMode, onToggleDarkMode, activeSection, onNavigate }: SidebarProps) {
   return (
     <aside className="hidden md:flex md:w-64 flex-col border-r border-slate-700/40 bg-slate-950/70 p-4 backdrop-blur-xl">

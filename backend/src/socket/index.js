@@ -1,3 +1,4 @@
+// Wires socket rooms and real-time trip events.
 import { Trip } from "../models/Trip.js";
 
 export function initializeSocket(io) {
@@ -11,6 +12,7 @@ export function initializeSocket(io) {
   io.on("connection", (socket) => {
     const authUser = socket.handshake?.auth?.user || null;
 
+    // Emits the current presence list for a trip immediately.
     function emitPresenceListNow(tripId) {
       const set = presence.get(tripId) || new Set();
       io.to(`trip:${tripId}`).emit("presence:list", { tripId, onlineUserIds: Array.from(set) });
@@ -22,6 +24,7 @@ export function initializeSocket(io) {
       }
     }
 
+    // Throttles presence updates so the room is not spammed.
     function schedulePresenceEmit(tripId) {
       const last = lastEmit.get(tripId) || 0;
       const now = Date.now();

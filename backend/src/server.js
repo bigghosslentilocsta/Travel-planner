@@ -1,3 +1,4 @@
+// Bootstraps the API server, socket server, and database connection.
 import "dotenv/config";
 import cors from "cors";
 import express from "express";

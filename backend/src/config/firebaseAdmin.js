@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 let initialized = false;
 
 export function initializeFirebaseAdmin() {
+  // Reuses the same admin instance across requests.
   if (initialized) {
     return admin;
   }

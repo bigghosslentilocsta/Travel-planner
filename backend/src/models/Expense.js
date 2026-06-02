@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Captures shared trip expenses and splits.
 const shareSchema = new mongoose.Schema(
   {
     user: {

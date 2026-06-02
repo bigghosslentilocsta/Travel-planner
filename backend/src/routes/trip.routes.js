@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createTrip, deleteTrip, inviteMember, joinTrip, listTrips } from "../controllers/trip.controller.js";
 import { authRequired } from "../middleware/auth.js";
 
+// Routes trip CRUD and membership actions.
 const router = Router();
 
 router.use(authRequired);

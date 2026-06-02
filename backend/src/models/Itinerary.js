@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Holds day-by-day itinerary entries for a trip.
 const activitySchema = new mongoose.Schema(
   {
     time: {

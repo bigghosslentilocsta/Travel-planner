@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Stores local and Firebase-authenticated users.
 const userSchema = new mongoose.Schema(
   {
     name: {

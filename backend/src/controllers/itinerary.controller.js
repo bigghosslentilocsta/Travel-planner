@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Itinerary } from "../models/Itinerary.js";
 import { Trip } from "../models/Trip.js";
 
+// Reads and updates itinerary items for a trip.
 const activitySchema = z.object({
   time: z.string().min(1),
   activityName: z.string().min(2).max(200),
@@ -17,12 +18,14 @@ const deleteActivitySchema = z.object({
   activityId: z.string().min(1)
 });
 
+// Confirms the caller is a member of the target trip.
 async function verifyMembership(tripId, userId) {
   const trip = await Trip.findById(tripId).select("members");
   if (!trip) return false;
   return trip.members.some((member) => member.toString() === userId);
 }
 
+// Returns the itinerary grouped by day for one trip.
 export async function getItineraryByTrip(req, res, next) {
   try {
     const { tripId } = req.params;
@@ -39,6 +42,7 @@ export async function getItineraryByTrip(req, res, next) {
   }
 }
 
+// Adds a new activity to the requested day.
 export async function addActivity(req, res, next) {
   try {
     const { tripId, dayNumber } = req.params;
@@ -79,6 +83,7 @@ export async function addActivity(req, res, next) {
   }
 }
 
+// Reorders activities within a day based on the provided ids.
 export async function reorderActivities(req, res, next) {
   try {
     const { tripId, dayNumber } = req.params;
@@ -125,6 +130,7 @@ export async function reorderActivities(req, res, next) {
   }
 }
 
+// Deletes an activity from a day.
 export async function deleteActivity(req, res, next) {
   try {
     const { tripId, dayNumber } = req.params;

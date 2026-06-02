@@ -1,4 +1,5 @@
 function resolveTextApiUrl(apiKey) {
+  // Picks the provider URL from env or API key format.
   if (process.env.TEXT_LLM_API_URL) return process.env.TEXT_LLM_API_URL;
   // Groq keys typically start with gsk_ and use OpenAI-compatible endpoints.
   if (typeof apiKey === "string" && apiKey.startsWith("gsk_")) {
@@ -7,6 +8,7 @@ function resolveTextApiUrl(apiKey) {
   return "https://api.openai.com/v1/chat/completions";
 }
 
+// Normalizes different provider response shapes into plain text.
 function extractTextFromProviderResponse(data) {
   if (data.choices && data.choices[0] && data.choices[0].message) {
     return data.choices[0].message.content || "";
@@ -20,6 +22,7 @@ function extractTextFromProviderResponse(data) {
   return JSON.stringify(data);
 }
 
+// Converts model output into the itinerary object expected by the UI.
 function tryParseItinerary(raw) {
   const trimmed = (raw || "").trim();
   if (!trimmed) return null;
@@ -54,6 +57,7 @@ function tryParseItinerary(raw) {
   }
 }
 
+// Requests an itinerary suggestion from the configured LLM.
 export async function suggestItinerary(req, res, next) {
   try {
     const { tripId } = req.params;

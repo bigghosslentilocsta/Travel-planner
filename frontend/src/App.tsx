@@ -1,3 +1,4 @@
+// Chooses the auth or dashboard view based on the current route and token.
 import { useEffect, useState } from "react";
 import { Sidebar, type SidebarSection } from "./components/layout/Sidebar";
 import { AuthPage } from "./pages/AuthPage";
@@ -13,10 +14,12 @@ const ROUTE_TO_SECTION: Record<string, SidebarSection> = {
 
 const wrongDestinationImage = "/wrong-destination-bones.png";
 
+// Removes trailing slashes so route checks stay stable.
 function normalizePathname(pathname: string) {
   return pathname.replace(/\/+$/, "") || "/";
 }
 
+// Chooses which screen to show for the current route and auth state.
 function resolveView(pathname: string, token: string) {
   const normalized = normalizePathname(pathname);
   const section = ROUTE_TO_SECTION[normalized];
@@ -28,6 +31,7 @@ function resolveView(pathname: string, token: string) {
   return section ? "dashboard" : "not-found";
 }
 
+// Orchestrates auth, routing, and the dashboard shell.
 function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [token, setToken] = useState(() => localStorage.getItem("tp_token") || "");
@@ -37,6 +41,7 @@ function App() {
   const viewMode = resolveView(pathname, token);
 
   useEffect(() => {
+    // Keeps local route state in sync with browser navigation.
     const handlePopState = () => {
       const nextPath = normalizePathname(window.location.pathname);
       setPathname(nextPath);
@@ -59,10 +64,12 @@ function App() {
     }
   }, [token, pathname]);
 
+  // Stores the session token after a successful login.
   function handleAuthenticated(nextToken: string) {
     setToken(nextToken);
   }
 
+  // Clears the session and sends the user back to auth.
   function handleLogout() {
     localStorage.removeItem("tp_token");
     setToken("");
@@ -71,6 +78,7 @@ function App() {
     setActiveSection("trips");
   }
 
+  // Moves the dashboard view to the selected section.
   function navigateTo(section: SidebarSection) {
     const nextPath = section === "trips" ? "/trips" : section === "itinerary" ? "/itinerary" : "/expenses";
     window.history.pushState({}, "", nextPath);

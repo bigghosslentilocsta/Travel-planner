@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export function authRequired(req, res, next) {
+  // Rejects requests without a valid session token.
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

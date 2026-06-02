@@ -1,3 +1,4 @@
+// Coordinates dashboard data loading and live socket updates.
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ExpensePanel } from "../components/dashboard/ExpensePanel";
@@ -8,6 +9,7 @@ import type { SidebarSection } from "../components/layout/Sidebar";
 import { useSocket } from "../hooks/useSocket";
 import { usePlannerStore } from "../store/usePlannerStore";
 
+// Extracts the current user's id from the session token.
 function getUserIdFromToken(token: string) {
   try {
     const payload = token.split(".")[1];
@@ -28,6 +30,7 @@ type TripDashboardPageProps = {
   activeSection: SidebarSection;
 };
 
+// Coordinates dashboard data loading and live socket updates.
 export function TripDashboardPage({ token, onLogout, activeSection }: TripDashboardPageProps) {
   const currentUserId = getUserIdFromToken(token);
   const {

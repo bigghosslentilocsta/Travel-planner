@@ -1,3 +1,4 @@
+// Displays itinerary days and inline activity editing.
 import { useEffect, useMemo, useState, type ComponentType, type FormEvent } from "react";
 import { Clock3, GripVertical, MapPin, Trash2, Wallet } from "lucide-react";
 import type { Activity, ItineraryDay, Trip } from "../../types";
@@ -17,6 +18,7 @@ type ItineraryBoardProps = {
   onDeleteActivity: (dayNumber: number, activityId: string) => Promise<void>;
 };
 
+// Displays itinerary days and inline activity editing.
 export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary, onAddActivity, onReorderDay, onDeleteActivity }: ItineraryBoardProps) {
   const [dayNumber, setDayNumber] = useState(1);
   const [time, setTime] = useState("09:00");
@@ -30,6 +32,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
     [itinerary]
   );
 
+  // Submits a new activity for the selected day.
   async function handleAddActivity(event: FormEvent) {
     event.preventDefault();
     await onAddActivity(dayNumber, { time, activityName, location, estimatedCost });
@@ -38,6 +41,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
     setEstimatedCost(0);
   }
 
+  // Reorders the activities when one is dropped on another.
   async function handleDrop(day: ItineraryDay, targetId: string) {
     if (!dragState || dragState.day !== day.dayNumber) return;
 
@@ -54,6 +58,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
     setDragState(null);
   }
 
+  // Renders a draggable activity card.
   function activityCard(day: ItineraryDay, activity: Activity) {
     return (
       <article
@@ -157,6 +162,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
   );
 }
 
+// Passes the selected trip destination into the AI panel.
 function AISuggestWrapper({ tripId, trips }: { tripId: string; trips: { _id: string; destination?: string }[] }) {
   const [AISuggestComp, setAISuggestComp] = useState<ComponentType<any> | null>(null);
 

@@ -1,3 +1,4 @@
+// Loads trip chat history and sends new messages.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "../../api/client";
 import type { Trip } from "../../types";
@@ -9,6 +10,7 @@ type Message = {
   createdAt: string;
 };
 
+// Loads trip chat history and sends new messages.
 export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }: { tripId: string | null; token: string | null; currentUserId: string | null; trips: Trip[]; onSelectTrip: (tripId: string) => void }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -37,6 +39,7 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
   }, [tripId, token]);
 
   useEffect(() => {
+    // Appends a newly received chat message.
     const handleNew = (e: any) => {
       if (e && e.detail) {
         const msg = e.detail as Message;
@@ -45,6 +48,7 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
     };
     window.addEventListener("tp:chat:new", handleNew as any);
 
+    // Updates remote typing indicators.
     const handleTyping = (ev: any) => {
       const payload = ev?.detail;
       if (!payload) return;

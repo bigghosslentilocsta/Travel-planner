@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Represents a shared travel trip and its members.
 const tripSchema = new mongoose.Schema(
   {
     title: {

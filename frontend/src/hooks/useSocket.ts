@@ -1,12 +1,15 @@
+// Connects the browser to the trip socket room.
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
 
+// Connects the browser to the current trip's socket room.
 export function useSocket(tripId: string | null, token: string | null, onEvent: (event: string, payload: unknown) => void) {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     if (!tripId || !token) return;
 
+    // Extracts the user id from the JWT payload.
     function getUserIdFromToken(t: string) {
       try {
         const payload = t.split(".")[1];

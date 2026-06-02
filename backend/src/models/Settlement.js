@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Stores settlement suggestions between trip members.
 const settlementSchema = new mongoose.Schema(
   {
     trip: {

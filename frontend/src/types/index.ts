@@ -1,3 +1,4 @@
+// Defines the shared UI data shapes used across the frontend.
 export type User = {
   id: string;
   name: string;
