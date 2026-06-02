@@ -36,6 +36,10 @@ services:
     publishPath: dist
     autoDeploy: true
     envVars:
+      - key: VITE_API_BASE_URL
+        value: "https://travel-planner-backend-0mde.onrender.com/api"
+      - key: VITE_SOCKET_URL
+        value: "https://travel-planner-backend-0mde.onrender.com"
       - key: VITE_FIREBASE_API_KEY
         value: ""
       - key: VITE_FIREBASE_AUTH_DOMAIN

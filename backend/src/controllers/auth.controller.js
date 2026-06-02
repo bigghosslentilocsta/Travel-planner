@@ -108,7 +108,7 @@ export async function firebaseAuth(req, res, next) {
     }
 
     const email = decodedToken.email.toLowerCase();
-    const name = decodedToken.name || decodedToken.email.split("@")[0];
+    const name = (decodedToken.name || decodedToken.email.split("@")[0] || "Traveler").trim();
     const avatarUrl = decodedToken.picture || "";
 
     let user = await User.findOne({ email });

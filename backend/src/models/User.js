@@ -4,8 +4,11 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
+      default: "",
       maxlength: 80
     },
     email: {
