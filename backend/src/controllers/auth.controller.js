@@ -134,7 +134,8 @@ export async function firebaseAuth(req, res, next) {
         avatarUrl
       });
     } else {
-      user.authProvider = user.authProvider || "firebase";
+      user.authProvider = "firebase";
+      if (!user.name || !user.name.trim()) user.name = name;
       user.googleId = user.googleId || decodedToken.uid;
       if (!user.avatarUrl && avatarUrl) user.avatarUrl = avatarUrl;
       await user.save();
