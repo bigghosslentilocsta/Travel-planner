@@ -132,14 +132,7 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
             <input value={destination} onChange={(event) => setDestination(event.target.value)} required placeholder="Destination" className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" />
             <input value={startDate} onChange={(event) => setStartDate(event.target.value)} required type="date" className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" />
             <input value={endDate} onChange={(event) => setEndDate(event.target.value)} required type="date" className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" />
-            <input
-              value={inviteInput}
-              onChange={(event) => setInviteInput(event.target.value)}
-              placeholder="Invite emails (comma separated)"
-              className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm md:col-span-2"
-            />
           </div>
-          <p className="mt-2 text-xs text-slate-400">Inviting {invitedEmails.length} traveler(s)</p>
           <button type="submit" className="mt-3 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500">Save Trip</button>
         </form>
 
