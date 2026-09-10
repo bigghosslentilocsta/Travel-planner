@@ -61,7 +61,7 @@ function tryParseItinerary(raw) {
 export async function suggestItinerary(req, res, next) {
   try {
     const { tripId } = req.params;
-    const { destination, days = 3, preferences = "" } = req.body || {};
+    const { destination, days = 3, preferences = "", latitude, longitude } = req.body || {};
 
     const apiKey = process.env.TEXT_LLM_API_KEY;
     const model = process.env.TEXT_LLM_MODEL || "gpt-4o";
@@ -74,7 +74,17 @@ export async function suggestItinerary(req, res, next) {
 
     const textApiUrl = resolveTextApiUrl(apiKey);
 
+    const seasonNames = ["Winter", "Winter", "Spring", "Spring", "Spring", "Summer", "Summer", "Summer", "Monsoon", "Monsoon", "Autumn", "Autumn"];
+    const currentMonth = new Date().getMonth();
+    const currentSeason = seasonNames[currentMonth];
+    const locationHint = (typeof latitude === "number" && typeof longitude === "number")
+      ? `The traveler is currently located near coordinates (${latitude.toFixed(2)}, ${longitude.toFixed(2)}). Suggest practical, regional, or nearby travel options that are accessible from this location.`
+      : "Suggest practical and well-known travel options.";
+
     const prompt = `You are an expert travel planner. Create a ${days}-day itinerary for ${destination}. Preferences: ${preferences}.
+
+Season context: It is currently ${currentSeason} (month: ${currentMonth + 1}).
+${locationHint}
 
 Return ONLY valid JSON using this exact shape:
 {
@@ -98,7 +108,9 @@ Return ONLY valid JSON using this exact shape:
 }
 
 Rules:
-- Keep activities practical and local.
+- Keep activities practical and local to the destination.
+- Factor in the current season for activity suggestions (e.g., avoid outdoor swimming in winter).
+- Suggest budget-friendly and seasonal options.
 - 3 to 5 activities per day.
 - Use concise language.
 - Do not include markdown or backticks.`;

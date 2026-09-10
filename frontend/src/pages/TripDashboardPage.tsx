@@ -89,17 +89,22 @@ export function TripDashboardPage({ token, onLogout, activeSection }: TripDashbo
   });
 
   return (
-    <main className="space-y-6 p-4 md:p-8">
-      <motion.header initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-slate-700 bg-slate-900/35 p-4">
+    <main className="relative z-10 space-y-6 p-4 md:p-8">
+      {/* Header bar */}
+      <motion.header
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card p-4"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-indigo-300">Real-time group planning</p>
-            <h2 className="mt-1 text-2xl font-semibold text-slate-100">Trip Itinerary Dashboard</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-brand-400">Real-time group planning</p>
+            <h2 className="mt-1 text-2xl font-bold text-slate-800">Trip Itinerary Dashboard</h2>
           </div>
           <button
             type="button"
             onClick={onLogout}
-            className="rounded-lg border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:border-slate-400"
+            className="rounded-xl border border-coral-400/30 bg-coral-500/10 px-4 py-2 text-sm font-medium text-coral-600 transition-colors hover:bg-coral-500/20"
           >
             Logout
           </button>

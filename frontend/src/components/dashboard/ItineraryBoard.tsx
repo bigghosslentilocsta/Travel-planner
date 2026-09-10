@@ -67,11 +67,11 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
         onDragStart={() => setDragState({ day: day.dayNumber, activityId: activity._id })}
         onDragOver={(event) => event.preventDefault()}
         onDrop={() => void handleDrop(day, activity._id)}
-        className="rounded-xl border border-slate-700 bg-slate-900/70 p-3"
+        className="glass-card p-3"
       >
-        <div className="flex items-center justify-between text-slate-300">
+        <div className="flex items-center justify-between text-slate-600">
           <div className="flex items-center gap-2 text-sm">
-            <Clock3 size={14} className="text-indigo-400" />
+            <Clock3 size={14} className="text-brand-500" />
             {activity.time}
           </div>
           <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
                 event.stopPropagation();
                 void onDeleteActivity(day.dayNumber, activity._id);
               }}
-              className="rounded-md p-1 text-rose-300 hover:bg-rose-500/10"
+              className="rounded-md p-1 text-coral-500 hover:bg-rose-500/10"
               aria-label={`Delete ${activity.activityName}`}
             >
               <Trash2 size={14} />
@@ -90,7 +90,7 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
           </div>
         </div>
 
-        <h4 className="mt-2 text-sm font-semibold text-slate-100">{activity.activityName}</h4>
+        <h4 className="mt-2 text-sm font-semibold text-slate-800">{activity.activityName}</h4>
 
         <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
           <span className="flex items-center gap-1"><MapPin size={12} /> {activity.location || "TBD"}</span>
@@ -102,12 +102,12 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
 
   return (
     <section className="space-y-4">
-      <div className="rounded-2xl border border-slate-700 bg-slate-900/35 p-4">
-        <label className="mb-2 block text-sm font-medium text-slate-200">Select Trip for Itinerary</label>
+      <div className="glass-card p-4">
+        <label className="mb-2 block text-sm font-medium text-slate-700">Select Trip for Itinerary</label>
         <select
           value={selectedTripId || ""}
           onChange={(event) => onSelectTrip(event.target.value)}
-          className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100"
+          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800"
         >
           <option value="" disabled>
             Choose a trip
@@ -133,24 +133,24 @@ export function ItineraryBoard({ trips, selectedTripId, onSelectTrip, itinerary,
       {/* Inserted at end of file to keep flow */}
 
 
-      <form onSubmit={handleAddActivity} className="rounded-2xl border border-slate-700 bg-slate-900/40 p-4">
-        <h3 className="mb-3 text-base font-semibold text-slate-100">Add Activity</h3>
+      <form onSubmit={handleAddActivity} className="glass-card p-4">
+        <h3 className="mb-3 text-base font-semibold text-slate-800">Add Activity</h3>
         <div className="grid gap-3 md:grid-cols-5">
-          <input type="number" min={1} value={dayNumber} onChange={(event) => setDayNumber(Number(event.target.value))} className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" placeholder="Day" />
-          <input type="time" value={time} onChange={(event) => setTime(event.target.value)} className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" />
-          <input required value={activityName} onChange={(event) => setActivityName(event.target.value)} className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" placeholder="Activity" />
-          <input value={location} onChange={(event) => setLocation(event.target.value)} className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" placeholder="Location" />
-          <input type="number" min={0} step="0.01" value={estimatedCost} onChange={(event) => setEstimatedCost(Number(event.target.value))} className="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm" placeholder="Cost" />
+          <input type="number" min={1} value={dayNumber} onChange={(event) => setDayNumber(Number(event.target.value))} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" placeholder="Day" />
+          <input type="time" value={time} onChange={(event) => setTime(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" />
+          <input required value={activityName} onChange={(event) => setActivityName(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" placeholder="Activity" />
+          <input value={location} onChange={(event) => setLocation(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" placeholder="Location" />
+          <input type="number" min={0} step="0.01" value={estimatedCost} onChange={(event) => setEstimatedCost(Number(event.target.value))} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" placeholder="Cost" />
         </div>
-        <button className="mt-3 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500" type="submit">Add To Timeline</button>
+        <button className="mt-3 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-brand-600 transition-all" type="submit">Add To Timeline</button>
       </form>
 
       <div className="grid gap-3 lg:grid-cols-2">
         {orderedDays.map((day) => (
-          <div key={day._id} className="rounded-2xl border border-slate-700 bg-slate-900/35 p-4">
+          <div key={day._id} className="glass-card p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-semibold text-slate-100">Day {day.dayNumber}</h3>
-              <span className="rounded-full border border-indigo-500/40 bg-indigo-500/15 px-2 py-1 text-xs text-indigo-200">
+              <h3 className="font-semibold text-slate-800">Day {day.dayNumber}</h3>
+              <span className="rounded-full bg-brand-100 px-2 py-1 text-xs font-medium text-brand-600">
                 {day.activities.length} activities
               </span>
             </div>

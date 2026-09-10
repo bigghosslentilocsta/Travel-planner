@@ -86,8 +86,8 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
       {m.sender.avatarUrl && m.sender._id !== currentUserId && (
         <img src={m.sender.avatarUrl} alt={m.sender.name} className="h-8 w-8 rounded-full object-cover" />
       )}
-      <div className="max-w-[70%] rounded-xl bg-slate-800/60 p-3 text-sm text-slate-100">
-        <div className="font-medium text-slate-200">{m.sender.name}</div>
+      <div className="max-w-[70%] rounded-xl bg-brand-50 border border-brand-100 p-3 text-sm text-slate-800">
+        <div className="font-medium text-slate-600">{m.sender.name}</div>
         <div className="mt-1">{m.content}</div>
         <div className="mt-1 text-xs text-slate-400">{new Date(m.createdAt).toLocaleString()}</div>
       </div>
@@ -104,13 +104,13 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
 
   if (!tripId) {
     return (
-      <section className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/35 p-4">
-        <h3 className="text-sm font-semibold text-slate-100">Trip Chat</h3>
-        <p className="mt-2 text-sm text-slate-300">Select a trip to view and send messages.</p>
+      <section className="mt-6 glass-card p-4">
+        <h3 className="text-sm font-semibold text-slate-800">Trip Chat</h3>
+        <p className="mt-2 text-sm text-slate-600">Select a trip to view and send messages.</p>
         <select
           value=""
           onChange={(event) => onSelectTrip(event.target.value)}
-          className="mt-3 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100"
+          className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800"
         >
           <option value="" disabled>
             Choose a trip
@@ -126,17 +126,17 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
   }
 
   return (
-    <section className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/35 p-4">
-      <h3 className="text-sm font-semibold text-slate-100">Trip Chat</h3>
-      {error && <p className="mt-2 text-sm text-rose-300">{error}</p>}
+    <section className="mt-6 glass-card p-4">
+      <h3 className="text-sm font-semibold text-slate-800">Trip Chat</h3>
+      {error && <p className="mt-2 text-sm text-coral-500">{error}</p>}
       <div ref={containerRef} className="mt-3 flex max-h-64 flex-col gap-2 overflow-auto">{rendered}</div>
       {Object.keys(typingUsers).some((k) => typingUsers[k]) && (
         <div className="mt-2 text-xs text-slate-400">Someone is typing...</div>
       )}
 
       <div className="mt-3 flex gap-2">
-        <input ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} className="flex-1 rounded-lg border border-slate-600 bg-slate-800/40 px-3 py-2 text-sm text-slate-100" placeholder="Message the group..." />
-        <button onClick={send} className="rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white">Send</button>
+        <input ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800" placeholder="Message the group..." />
+        <button onClick={send} className="rounded-xl bg-brand-500 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-brand-600 transition-all">Send</button>
       </div>
     </section>
   );

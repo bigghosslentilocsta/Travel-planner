@@ -236,12 +236,12 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
     } else if (result) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
-      doc.setTextColor(226, 232, 240);
+      doc.setTextColor(15, 23, 42);
       doc.text("AI Itinerary", margin, y);
       y += 24;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.setTextColor(203, 213, 225);
+      doc.setTextColor(51, 65, 85);
       drawWrappedText(result, margin, contentWidth, 15, 11);
     } else {
       return;
@@ -263,9 +263,20 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
 
     setLoading(true);
     try {
+      // Try to get user coordinates for location-aware suggestions
+      let latitude: number | undefined;
+      let longitude: number | undefined;
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        );
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } catch { /* Geolocation denied — continue without coordinates */ }
+
       const resp = await apiFetch<{ suggestion?: string; itinerary?: GeneratedItinerary | null }>(
         `/trips/${tripId}/ai/itinerary`,
-        { method: "POST", body: JSON.stringify({ destination: dest, days, preferences: prefs }) },
+        { method: "POST", body: JSON.stringify({ destination: dest, days, preferences: prefs, latitude, longitude }) },
         token || undefined
       );
       const suggestionText = resp.suggestion || "";
@@ -294,38 +305,38 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
       </button>
 
       {open && (
-        <div className="mt-3 rounded-xl border border-emerald-500/30 bg-slate-900/60 p-4">
-          <p className="mb-3 text-sm font-medium text-emerald-200">Tell AI your trip preferences</p>
+        <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+          <p className="mb-3 text-sm font-medium text-emerald-600">Tell AI your trip preferences</p>
           <div className="grid gap-3 md:grid-cols-3">
             <div className="md:col-span-1">
-              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-300">Destination</label>
+              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-600">Destination</label>
               <input
                 value={destInput}
                 onChange={(event) => setDestInput(event.target.value)}
                 placeholder="e.g., Paris"
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800"
               />
             </div>
 
             <div className="md:col-span-1">
-              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-300">Days</label>
+              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-600">Days</label>
               <input
                 type="number"
                 min={1}
                 max={30}
                 value={daysInput}
                 onChange={(event) => setDaysInput(Number(event.target.value))}
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800"
               />
             </div>
 
             <div className="md:col-span-1">
-              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-300">Preferences</label>
+              <label className="mb-1 block text-xs uppercase tracking-wide text-slate-600">Preferences</label>
               <input
                 value={prefsInput}
                 onChange={(event) => setPrefsInput(event.target.value)}
                 placeholder="museums, food, outdoors"
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800"
               />
             </div>
           </div>
@@ -346,7 +357,7 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
                 setDaysInput(3);
                 setPrefsInput("");
               }}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-slate-400"
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 hover:border-brand-400 transition-colors"
             >
               Reset
             </button>
@@ -355,35 +366,35 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
       )}
 
       {itinerary && (
-        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-slate-900/60 p-4">
+        <div className="mt-4 rounded-xl border border-emerald-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h4 className="text-base font-semibold text-emerald-200">{itinerary.title || "AI Itinerary"}</h4>
+            <h4 className="text-base font-semibold text-emerald-600">{itinerary.title || "AI Itinerary"}</h4>
             <button
               type="button"
               onClick={downloadAsPdf}
-              className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20"
+              className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-500/20"
             >
               Download PDF
             </button>
           </div>
-          {itinerary.summary && <p className="mt-1 text-sm leading-6 text-slate-300">{itinerary.summary}</p>}
+          {itinerary.summary && <p className="mt-1 text-sm leading-6 text-slate-600">{itinerary.summary}</p>}
 
           <div className="mt-4 space-y-4">
             {dayPlans.map((day) => (
-              <div key={day.dayNumber} className="overflow-hidden rounded-xl border border-slate-700 bg-slate-950/40">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-900/80 px-4 py-3">
+              <div key={day.dayNumber} className="overflow-hidden glass-card">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-100">Day {day.dayNumber}</h5>
+                    <h5 className="text-sm font-semibold text-slate-800">Day {day.dayNumber}</h5>
                     {day.theme && <p className="mt-1 text-xs text-slate-400">{day.theme}</p>}
                   </div>
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-200">
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600">
                     {day.activities.length} activities
                   </span>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-800 text-left text-sm">
-                    <thead className="text-slate-300">
+                  <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
+                    <thead className="text-slate-600">
                       <tr>
                         <th className="px-4 py-3 font-medium">Time</th>
                         <th className="px-4 py-3 font-medium">Activity</th>
@@ -392,14 +403,14 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
                         <th className="px-4 py-3 font-medium">Est. Cost</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800 text-slate-100">
+                    <tbody className="divide-y divide-slate-200 text-slate-800">
                       {day.activities.map((activity, index) => (
-                        <tr key={`${day.dayNumber}-${activity.time}-${index}`} className="odd:bg-slate-900/30 even:bg-slate-950/10">
-                          <td className="px-4 py-3 align-top text-slate-300">{activity.time || "TBD"}</td>
-                          <td className="px-4 py-3 align-top font-medium text-indigo-100">{activity.activity}</td>
-                          <td className="px-4 py-3 align-top text-slate-300">{activity.location || "-"}</td>
+                        <tr key={`${day.dayNumber}-${activity.time}-${index}`} className="odd:bg-slate-50 even:bg-white">
+                          <td className="px-4 py-3 align-top text-slate-600">{activity.time || "TBD"}</td>
+                          <td className="px-4 py-3 align-top font-medium text-brand-700">{activity.activity}</td>
+                          <td className="px-4 py-3 align-top text-slate-600">{activity.location || "-"}</td>
                           <td className="px-4 py-3 align-top text-slate-400">{activity.notes || "-"}</td>
-                          <td className="px-4 py-3 align-top text-emerald-200">₹{Number(activity.estimatedCost || 0).toFixed(2)}</td>
+                          <td className="px-4 py-3 align-top text-emerald-600">₹{Number(activity.estimatedCost || 0).toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -412,19 +423,19 @@ export function AISuggest({ tripId, token, destination }: { tripId: string | nul
       )}
 
       {result && !itinerary && (
-        <div className="mt-3 rounded-md border border-slate-700 bg-slate-900/60 p-3">
+        <div className="mt-3 glass-card p-3">
           <p className="mb-2 text-xs uppercase tracking-[0.2em] text-slate-400">AI response</p>
-          <p className="text-sm leading-6 text-slate-300">
+          <p className="text-sm leading-6 text-slate-600">
             The AI reply could not be parsed into the itinerary table. Try generating again, or copy the response below.
           </p>
           <button
             type="button"
             onClick={downloadAsPdf}
-            className="mb-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20"
+            className="mb-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-500/20"
           >
             Download PDF
           </button>
-          <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-700 bg-slate-950/50 p-3 text-sm text-slate-100">{result}</pre>
+          <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-800">{result}</pre>
         </div>
       )}
     </div>

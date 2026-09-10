@@ -1,11 +1,9 @@
-// Renders the main navigation and theme toggle.
-import { CalendarDays, CircleDollarSign, MapPinned, Moon, Sun } from "lucide-react";
+// Renders the main navigation panel with a solid, consistent background.
+import { CalendarDays, CircleDollarSign, MapPinned } from "lucide-react";
 
 export type SidebarSection = "trips" | "itinerary" | "expenses";
 
 type SidebarProps = {
-  darkMode: boolean;
-  onToggleDarkMode: () => void;
   activeSection: SidebarSection;
   onNavigate: (section: SidebarSection) => void;
 };
@@ -16,45 +14,43 @@ const navItems = [
   { label: "Expense Split", icon: CircleDollarSign }
 ];
 
-// Renders the main navigation and theme toggle.
-export function Sidebar({ darkMode, onToggleDarkMode, activeSection, onNavigate }: SidebarProps) {
+// Solid indigo sidebar — always the same color, unaffected by the animated background.
+export function Sidebar({ activeSection, onNavigate }: SidebarProps) {
   return (
-    <aside className="hidden md:flex md:w-64 flex-col border-r border-slate-700/40 bg-slate-950/70 p-4 backdrop-blur-xl">
-      <div className="mb-8 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-indigo-200 shadow-glow">
-        <p className="text-xs uppercase tracking-[0.25em] text-indigo-300">Collaborative</p>
+    <aside className="relative z-20 hidden md:flex md:w-64 flex-col border-r border-brand-500/20 p-5" style={{ backgroundColor: "var(--sidebar-bg)" }}>
+      {/* Logo / branding */}
+      <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-glow">
+        <p className="text-xs uppercase tracking-[0.25em] text-brand-300">Collaborative</p>
         <h1 className="mt-2 text-xl font-semibold text-white">Travel Planner</h1>
       </div>
 
+      {/* Navigation links */}
       <nav className="space-y-2">
         {navItems.map(({ label, icon: Icon }, index) => {
           const section = (index === 0 ? "trips" : index === 1 ? "itinerary" : "expenses") as SidebarSection;
+          const isActive = activeSection === section;
 
           return (
             <button
               key={label}
               type="button"
               onClick={() => onNavigate(section)}
-              className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${
-                activeSection === section
-                  ? "border-indigo-500 bg-indigo-500/10 text-indigo-100"
-                  : "border-transparent text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 ${
+                isActive
+                  ? "bg-white/15 text-white shadow-md"
+                  : "text-brand-200/70 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Icon size={18} />
+              <Icon size={18} className={isActive ? "text-white" : "text-brand-300/60"} />
               <span>{label}</span>
+              {isActive && (
+                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse" />
+              )}
             </button>
           );
         })}
       </nav>
 
-      <button
-        type="button"
-        onClick={onToggleDarkMode}
-        className="mt-auto flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-slate-200"
-      >
-        <span>{darkMode ? "Dark mode" : "Light mode"}</span>
-        {darkMode ? <Moon size={16} /> : <Sun size={16} />}
-      </button>
     </aside>
   );
 }

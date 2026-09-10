@@ -68,6 +68,18 @@ export async function createTrip(req, res, next) {
       return res.status(400).json({ message: "End date must be after start date" });
     }
 
+    // Prevent overlapping trips for the same user
+    const existingTrips = await Trip.find({ members: req.user.userId }).lean();
+    for (const existing of existingTrips) {
+      const eStart = new Date(existing.startDate);
+      const eEnd = new Date(existing.endDate);
+      if (input.startDate <= eEnd && eStart <= input.endDate) {
+        return res.status(409).json({
+          message: `Schedule conflict: you already have "${existing.title}" on ${eStart.toLocaleDateString()} – ${eEnd.toLocaleDateString()}. Please choose non-overlapping dates.`
+        });
+      }
+    }
+
     const uniqueInvites = [...new Set(input.invitedEmails.map((email) => email.toLowerCase()))];
     const tripCode = await createUniqueTripCode();
 
@@ -142,6 +154,17 @@ export async function joinTrip(req, res, next) {
     const memberId = req.user.userId.toString();
     const alreadyMember = trip.members.some((member) => member.toString() === memberId);
     if (!alreadyMember) {
+      // Prevent joining a trip that overlaps with existing trips
+      const existingTrips = await Trip.find({ members: req.user.userId }).lean();
+      for (const existing of existingTrips) {
+        const eStart = new Date(existing.startDate);
+        const eEnd = new Date(existing.endDate);
+        if (new Date(trip.startDate) <= eEnd && eStart <= new Date(trip.endDate)) {
+          return res.status(409).json({
+            message: `Schedule conflict: you already have "${existing.title}" on ${eStart.toLocaleDateString()} – ${eEnd.toLocaleDateString()}. This trip overlaps and cannot be joined.`
+          });
+        }
+      }
       trip.members.push(memberId);
       await trip.save();
     }
