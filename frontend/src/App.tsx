@@ -42,7 +42,9 @@ function App() {
   const [pathname, setPathname] = useState(() => normalizePathname(window.location.pathname));
   const [activeSection, setActiveSection] = useState<SidebarSection>(() => ROUTE_TO_SECTION[normalizePathname(window.location.pathname)] || "trips");
   const [notice, setNotice] = useState("");
-  const inviteToken = pathname.startsWith("/invite/") ? pathname.slice("/invite/".length) : "";
+  const inviteToken = pathname.startsWith("/invite/")
+    ? pathname.slice("/invite/".length)
+    : new URLSearchParams(window.location.search).get("invite") || "";
 
   const viewMode = resolveView(pathname, token);
 
