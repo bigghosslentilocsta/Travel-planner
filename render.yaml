@@ -37,6 +37,10 @@ services:
     buildCommand: npm ci && npm run build
     publishPath: dist
     autoDeploy: true
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
         value: "https://travel-planner-backend-0mde.onrender.com/api"
