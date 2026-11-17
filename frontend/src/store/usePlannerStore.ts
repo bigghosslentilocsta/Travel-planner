@@ -149,7 +149,9 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
       token
     );
     const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-    return `${appUrl.replace(/\/+$/, "")}/?invite=${encodeURIComponent(data.inviteToken)}`;
+    const apiOrigin = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/api\/?$/, "");
+    const inviteOrigin = import.meta.env.VITE_INVITE_BASE_URL || apiOrigin || appUrl;
+    return `${inviteOrigin.replace(/\/+$/, "")}/invite/${encodeURIComponent(data.inviteToken)}`;
   },
 
   exitTrip: async (tripId) => {

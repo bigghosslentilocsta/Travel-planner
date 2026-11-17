@@ -14,7 +14,7 @@ services:
       - key: JWT_SECRET
         value: ""
       - key: CLIENT_ORIGIN
-        value: ""
+        value: "https://travel-0wuj.onrender.com"
       - key: FIREBASE_PROJECT_ID
         value: ""
       - key: FIREBASE_CLIENT_EMAIL
@@ -46,6 +46,8 @@ services:
         value: "https://travel-planner-backend-0mde.onrender.com/api"
       - key: VITE_APP_URL
         value: "https://travel-0wuj.onrender.com"
+      - key: VITE_INVITE_BASE_URL
+        value: "https://travel-planner-backend-0mde.onrender.com"
       - key: VITE_SOCKET_URL
         value: "https://travel-planner-backend-0mde.onrender.com"
       - key: VITE_FIREBASE_API_KEY

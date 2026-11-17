@@ -41,6 +41,16 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/invite/:inviteToken", (req, res) => {
+  const clientOrigin = process.env.CLIENT_ORIGIN;
+  if (!clientOrigin) {
+    return res.status(500).json({ message: "Client origin is not configured" });
+  }
+
+  const frontendUrl = `${clientOrigin.replace(/\/+$/, "")}/?invite=${encodeURIComponent(req.params.inviteToken)}`;
+  return res.redirect(302, frontendUrl);
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/trips", tripRoutes);
