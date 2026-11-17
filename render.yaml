@@ -40,6 +40,8 @@ services:
     envVars:
       - key: VITE_API_BASE_URL
         value: "https://travel-planner-backend-0mde.onrender.com/api"
+      - key: VITE_APP_URL
+        value: "https://travel-0wuj.onrender.com"
       - key: VITE_SOCKET_URL
         value: "https://travel-planner-backend-0mde.onrender.com"
       - key: VITE_FIREBASE_API_KEY
