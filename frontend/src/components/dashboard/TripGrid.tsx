@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { usePlannerStore } from "../../store/usePlannerStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, Compass, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { PlusCircle, Compass, ChevronLeft, ChevronRight, AlertTriangle, Share2, LogOut } from "lucide-react";
 import type { Trip } from "../../types";
 
 type TripGridProps = {
@@ -17,6 +17,8 @@ type TripGridProps = {
     invitedEmails: string[];
   }) => Promise<void>;
   onJoinTrip: (payload: { tripName: string; tripCode: string }) => Promise<void>;
+  onCreateInviteLink: (tripId: string) => Promise<string>;
+  onExitTrip: (tripId: string) => Promise<void>;
   onDeleteTrip: (tripId: string) => Promise<void>;
 };
 
@@ -88,7 +90,7 @@ function getSeasonLabel(key: string): string {
 }
 
 /* ─── Main Component ─── */
-export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, onJoinTrip, onDeleteTrip: _onDeleteTrip }: TripGridProps) {
+export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, onJoinTrip, onCreateInviteLink, onExitTrip, onDeleteTrip: _onDeleteTrip }: TripGridProps) {
   const { onlineMembers } = usePlannerStore();
   const seasonKey = useMemo(() => getSeasonKey(), []);
   const allDestinations = useMemo(() => SEASONAL_DESTINATIONS[seasonKey] || [], [seasonKey]);
@@ -174,6 +176,7 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
   const [joinTripCode, setJoinTripCode] = useState("");
   const [joinError, setJoinError] = useState("");
   const [joining, setJoining] = useState(false);
+  const [inviteStatus, setInviteStatus] = useState<Record<string, string>>({});
 
   /* Date validation */
   function validateDates(start: string, end: string): string | null {
@@ -236,6 +239,46 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
 
   const currentDest = destinations[currentSlide];
 
+  async function handleInvite(tripId: string) {
+    try {
+      const link = await onCreateInviteLink(tripId);
+      await navigator.clipboard.writeText(link);
+      setInviteStatus((current) => ({ ...current, [tripId]: "Invite link copied" }));
+    } catch (error) {
+      setInviteStatus((current) => ({
+        ...current,
+        [tripId]: error instanceof Error ? error.message : "Could not create invite link"
+      }));
+    }
+
+  }
+
+  async function handleExit(trip: Trip) {
+    if (new Date() >= new Date(trip.startDate)) {
+      setFormError("You cannot exit after the trip has started.");
+      return;
+    }
+    if (!window.confirm(`Exit "${trip.title}"? You will no longer be a member of this trip.`)) return;
+    try {
+      await onExitTrip(trip._id);
+      setFormError("");
+    } catch (error) {
+      setInviteStatus((current) => ({
+        ...current,
+        [trip._id]: error instanceof Error ? error.message : "Unable to exit trip"
+      }));
+    }
+  }
+
+  function getTimelineStatus(trip: Trip) {
+    const start = new Date(trip.startDate);
+    const end = new Date(trip.endDate);
+    end.setHours(23, 59, 59, 999);
+    if (new Date() > end) return "completed";
+    if (new Date() >= start) return "started";
+    return "upcoming";
+  }
+
   return (
     <section className="space-y-6">
       {/* Full-Width Destination Banner Carousel */}
@@ -293,22 +336,35 @@ export function TripGrid({ trips, selectedTripId, onSelectTrip, onCreateTrip, on
               const isSelected = trip._id === selectedTripId;
               const members = trip.members || [];
               const online = onlineMembers[trip._id] || [];
+              const timelineStatus = getTimelineStatus(trip);
               return (
-                <motion.button key={trip._id} type="button" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} onClick={() => onSelectTrip(trip._id)}
-                  className={`glass-card group relative overflow-hidden p-5 text-left transition-all duration-200 ${isSelected ? "ring-2 ring-brand-500 shadow-glow" : "hover:shadow-card"}`}>
+                <motion.div key={trip._id} role="button" tabIndex={0} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }} onClick={() => onSelectTrip(trip._id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onSelectTrip(trip._id); }}
+                  className={`glass-card group relative overflow-hidden border-2 p-5 text-left transition-all duration-200 ${timelineStatus === "started" ? "border-emerald-400 bg-emerald-50/50" : timelineStatus === "completed" ? "border-slate-400 bg-slate-100/70" : "border-transparent"} ${isSelected ? "ring-2 ring-brand-500 shadow-glow" : "hover:shadow-card"}`}>
                   <div className="mb-3 flex items-start justify-between">
                     <div><h3 className="font-semibold text-slate-800">{trip.title}</h3><p className="mt-0.5 text-xs text-slate-400">{trip.destination}</p></div>
                     {isSelected && <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />}
                   </div>
-                  <div className="mb-3 text-xs text-slate-400">{new Date(trip.startDate).toLocaleDateString()} – {new Date(trip.endDate).toLocaleDateString()}</div>
+                  <div className="mb-2 text-xs text-slate-400">{new Date(trip.startDate).toLocaleDateString()} – {new Date(trip.endDate).toLocaleDateString()}</div>
+                  {timelineStatus === "started" && <p className="mb-2 text-xs font-medium text-emerald-700">Trip is currently in progress</p>}
+                  {timelineStatus === "completed" && <p className="mb-2 text-xs font-bold text-slate-700">Trip completed</p>}
+                  <div className="mb-3 flex items-center justify-between gap-2 text-xs">
+                    <span className="font-medium tracking-[0.15em] text-brand-600">Code: {trip.tripCode}</span>
+                    <button type="button" onClick={(event) => { event.stopPropagation(); void handleInvite(trip._id); }} className="inline-flex items-center gap-1 rounded-lg bg-brand-500/10 px-2 py-1 font-medium text-brand-600 hover:bg-brand-500/20">
+                      <Share2 size={13} /> Invite
+                    </button>
+                  </div>
+                  {inviteStatus[trip._id] && <p className="mb-2 text-[11px] text-emerald-600">{inviteStatus[trip._id]}</p>}
                   <div className="flex items-center justify-between">
                     <div className="flex -space-x-2">
                       {members.slice(0, 4).map((m) => (<div key={m._id} className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-brand-100 text-[10px] font-semibold text-brand-600" title={m.name || m.email}>{(m.name || m.email || "?")[0].toUpperCase()}</div>))}
                       {members.length > 4 && <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-[10px] font-medium text-slate-500">+{members.length - 4}</div>}
                     </div>
+                    <button type="button" onClick={(event) => { event.stopPropagation(); void handleExit(trip); }} disabled={timelineStatus === "started" || timelineStatus === "completed"} className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-coral-600 hover:underline disabled:cursor-not-allowed disabled:opacity-40">
+                      <LogOut size={13} /> {timelineStatus === "started" ? "Trip started" : timelineStatus === "completed" ? "Trip completed" : "Exit trip"}
+                    </button>
                     {online.length > 0 && <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600">{online.length} online</span>}
                   </div>
-                </motion.button>
+                </motion.div>
               );
             })}
           </div>

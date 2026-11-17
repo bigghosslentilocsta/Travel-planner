@@ -1,16 +1,19 @@
 // Chooses the auth or dashboard view based on the current route and token.
 import { useEffect, useState } from "react";
-import { CalendarDays, CircleDollarSign, MapPinned } from "lucide-react";
+import { CalendarDays, CircleDollarSign, MapPinned, UserCircle } from "lucide-react";
 import { Sidebar, type SidebarSection } from "./components/layout/Sidebar";
 import { AuthPage } from "./pages/AuthPage";
 import { TripDashboardPage } from "./pages/TripDashboardPage";
+import { apiFetch } from "./api/client";
+import { ProfilePage } from "./pages/ProfilePage";
 
 const ROUTE_TO_SECTION: Record<string, SidebarSection> = {
   "/": "trips",
   "/dashboard": "trips",
   "/trips": "trips",
   "/itinerary": "itinerary",
-  "/expenses": "expenses"
+  "/expenses": "expenses",
+  "/profile": "profile"
 };
 
 const wrongDestinationImage = "/wrong-destination-bones.png";
@@ -23,6 +26,7 @@ function normalizePathname(pathname: string) {
 // Chooses which screen to show for the current route and auth state.
 function resolveView(pathname: string, token: string) {
   const normalized = normalizePathname(pathname);
+  if (normalized.startsWith("/invite/")) return token ? "dashboard" : "auth";
   const section = ROUTE_TO_SECTION[normalized];
 
   if (!token) {
@@ -37,6 +41,8 @@ function App() {
   const [token, setToken] = useState(() => localStorage.getItem("tp_token") || "");
   const [pathname, setPathname] = useState(() => normalizePathname(window.location.pathname));
   const [activeSection, setActiveSection] = useState<SidebarSection>(() => ROUTE_TO_SECTION[normalizePathname(window.location.pathname)] || "trips");
+  const [notice, setNotice] = useState("");
+  const inviteToken = pathname.startsWith("/invite/") ? pathname.slice("/invite/".length) : "";
 
   const viewMode = resolveView(pathname, token);
 
@@ -53,12 +59,39 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!token && pathname !== "/") {
+    if (!token && pathname !== "/" && !inviteToken) {
       window.history.replaceState({}, "", "/");
       setPathname("/");
       setActiveSection("trips");
     }
-  }, [token, pathname]);
+  }, [token, pathname, inviteToken]);
+
+  useEffect(() => {
+    if (!token || !inviteToken) return;
+
+    let active = true;
+    void apiFetch<{ message: string }>(
+      `/trips/invite/${encodeURIComponent(inviteToken)}/join`,
+      { method: "POST" },
+      token
+    ).then((data) => {
+      if (!active) return;
+      setNotice(data.message);
+      window.history.replaceState({}, "", "/trips");
+      setPathname("/trips");
+      setActiveSection("trips");
+    }).catch((error: unknown) => {
+      if (!active) return;
+      setNotice(error instanceof Error ? error.message : "Could not join this trip");
+      window.history.replaceState({}, "", "/trips");
+      setPathname("/trips");
+      setActiveSection("trips");
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [token, inviteToken]);
 
   // Stores the session token after a successful login.
   function handleAuthenticated(nextToken: string) {
@@ -76,7 +109,7 @@ function App() {
 
   // Moves the dashboard view to the selected section.
   function navigateTo(section: SidebarSection) {
-    const nextPath = section === "trips" ? "/trips" : section === "itinerary" ? "/itinerary" : "/expenses";
+    const nextPath = section === "trips" ? "/trips" : section === "itinerary" ? "/itinerary" : section === "expenses" ? "/expenses" : "/profile";
     window.history.pushState({}, "", nextPath);
     setPathname(nextPath);
     setActiveSection(section);
@@ -102,7 +135,9 @@ function App() {
             </div>
 
             <div className="relative z-10 pb-20 md:pb-8">
-              {viewMode === "not-found" ? (
+              {activeSection === "profile" ? (
+                <ProfilePage token={token} />
+              ) : viewMode === "not-found" ? (
                 <main className="flex min-h-screen items-center justify-center p-6">
                   <div className="glass-card max-w-lg p-8 text-center shadow-soft">
                     <p className="text-xs uppercase tracking-[0.3em] text-coral-500">Oops</p>
@@ -125,7 +160,7 @@ function App() {
                   </div>
                 </main>
               ) : (
-                <TripDashboardPage token={token} onLogout={handleLogout} activeSection={activeSection} />
+                <TripDashboardPage token={token} onLogout={handleLogout} activeSection={activeSection} notice={notice} onNotice={setNotice} />
               )}
             </div>
           </div>
@@ -135,7 +170,8 @@ function App() {
             {([
               { label: "Trips", icon: MapPinned, section: "trips" as SidebarSection },
               { label: "Itinerary", icon: CalendarDays, section: "itinerary" as SidebarSection },
-              { label: "Split", icon: CircleDollarSign, section: "expenses" as SidebarSection }
+              { label: "Split", icon: CircleDollarSign, section: "expenses" as SidebarSection },
+              { label: "Profile", icon: UserCircle, section: "profile" as SidebarSection }
             ]).map(({ label, icon: Icon, section }) => {
               const isActive = activeSection === section;
               return (

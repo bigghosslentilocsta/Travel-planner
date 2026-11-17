@@ -12,6 +12,7 @@ export type Trip = {
   startDate: string;
   endDate: string;
   tripCode: string;
+  inviteToken?: string;
   invitedEmails: string[];
   members?: Array<{
     _id: string;

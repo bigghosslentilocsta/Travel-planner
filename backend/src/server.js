@@ -12,6 +12,7 @@ import itineraryRoutes from "./routes/itinerary.routes.js";
 import expenseRoutes from "./routes/expense.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 import { initializeSocket } from "./socket/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -41,6 +42,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/trips/:tripId/itinerary", itineraryRoutes);
 app.use("/api/trips/:tripId/expenses", expenseRoutes);

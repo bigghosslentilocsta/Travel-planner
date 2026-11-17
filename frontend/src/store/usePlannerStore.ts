@@ -26,6 +26,8 @@ type PlannerState = {
     tripName: string;
     tripCode: string;
   }) => Promise<void>;
+  createInviteLink: (tripId: string) => Promise<string>;
+  exitTrip: (tripId: string) => Promise<void>;
   deleteTrip: (tripId: string) => Promise<void>;
   addActivity: (dayNumber: number, payload: {
     time: string;
@@ -133,6 +135,30 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
     if (!token) throw new Error("Missing token");
 
     await apiFetch("/trips/join", { method: "POST", body: JSON.stringify(payload) }, token);
+    await get().fetchTrips();
+  },
+
+  // Creates a shareable invite token for a trip.
+  createInviteLink: async (tripId) => {
+    const { token } = get();
+    if (!token) throw new Error("Missing token");
+
+    const data = await apiFetch<{ inviteToken: string }>(
+      `/trips/${tripId}/invite-link`,
+      { method: "POST" },
+      token
+    );
+    return `${window.location.origin}/invite/${data.inviteToken}`;
+  },
+
+  exitTrip: async (tripId) => {
+    const { token, selectedTripId } = get();
+    if (!token) throw new Error("Missing token");
+
+    await apiFetch(`/trips/${tripId}/exit`, { method: "POST" }, token);
+    if (selectedTripId === tripId) {
+      set({ selectedTripId: null, itinerary: [], expenses: [], settlements: [], settledRecords: [] });
+    }
     await get().fetchTrips();
   },
 

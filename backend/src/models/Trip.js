@@ -33,6 +33,12 @@ const tripSchema = new mongoose.Schema(
       minlength: 6,
       maxlength: 8
     },
+    inviteToken: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

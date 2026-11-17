@@ -25,6 +25,8 @@ services:
         value: ""
       - key: TEXT_LLM_API_URL
         value: ""
+      - key: TEXT_LLM_MODEL
+        value: ""
 
   - type: static
     name: travel-planner-frontend

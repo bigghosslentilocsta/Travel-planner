@@ -28,10 +28,12 @@ type TripDashboardPageProps = {
   token: string;
   onLogout: () => void;
   activeSection: SidebarSection;
+  notice?: string;
+  onNotice: (message: string) => void;
 };
 
 // Coordinates dashboard data loading and live socket updates.
-export function TripDashboardPage({ token, onLogout, activeSection }: TripDashboardPageProps) {
+export function TripDashboardPage({ token, onLogout, activeSection, notice, onNotice }: TripDashboardPageProps) {
   const currentUserId = getUserIdFromToken(token);
   const {
     selectedTripId,
@@ -46,6 +48,8 @@ export function TripDashboardPage({ token, onLogout, activeSection }: TripDashbo
     fetchTripData,
     createTrip,
     joinTrip,
+    createInviteLink,
+    exitTrip,
     deleteTrip,
     addActivity,
     deleteActivity,
@@ -86,6 +90,12 @@ export function TripDashboardPage({ token, onLogout, activeSection }: TripDashbo
       }
       // otherwise ChatPanel will receive the DOM event and append
     }
+
+    if (event === "trip:member-exited") {
+      const exit = payload as { memberName?: string };
+      onNotice(`${exit.memberName || "A member"} exited the trip`);
+      void fetchTrips();
+    }
   });
 
   return (
@@ -110,6 +120,7 @@ export function TripDashboardPage({ token, onLogout, activeSection }: TripDashbo
           </button>
         </div>
       </motion.header>
+      {notice && <p className="rounded-lg bg-brand-500/10 px-3 py-2.5 text-sm font-medium text-brand-700">{notice}</p>}
 
       {activeSection === "trips" && (
         <TripGrid
@@ -118,6 +129,8 @@ export function TripDashboardPage({ token, onLogout, activeSection }: TripDashbo
           onSelectTrip={setSelectedTripId}
           onCreateTrip={createTrip}
           onJoinTrip={joinTrip}
+          onCreateInviteLink={createInviteLink}
+          onExitTrip={exitTrip}
           onDeleteTrip={deleteTrip}
         />
       )}

@@ -8,6 +8,14 @@ function resolveTextApiUrl(apiKey) {
   return "https://api.openai.com/v1/chat/completions";
 }
 
+function resolveTextModel(apiKey) {
+  if (process.env.TEXT_LLM_MODEL) return process.env.TEXT_LLM_MODEL;
+  if (typeof apiKey === "string" && apiKey.startsWith("gsk_")) {
+    return "llama-3.3-70b-versatile";
+  }
+  return "gpt-4o-mini";
+}
+
 // Normalizes different provider response shapes into plain text.
 function extractTextFromProviderResponse(data) {
   if (data.choices && data.choices[0] && data.choices[0].message) {
@@ -64,7 +72,7 @@ export async function suggestItinerary(req, res, next) {
     const { destination, days = 3, preferences = "", latitude, longitude } = req.body || {};
 
     const apiKey = process.env.TEXT_LLM_API_KEY;
-    const model = process.env.TEXT_LLM_MODEL || "gpt-4o";
+    const model = resolveTextModel(apiKey);
 
     if (!apiKey) return res.status(500).json({ message: "Text LLM API key is not configured" });
 
@@ -122,22 +130,47 @@ Rules:
       temperature: 0.8
     };
 
-    const resp = await fetch(textApiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+    let resp;
+    try {
+      resp = await fetch(textApiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        return res.status(504).json({ message: "AI provider timed out. Please try again." });
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!resp.ok) {
       const text = await resp.text();
-      return res.status(502).json({
-        message: "LLM request failed",
-        providerStatus: resp.status,
+      console.error("LLM provider request failed", {
+        status: resp.status,
+        model,
         providerUrl: textApiUrl,
         details: text.slice(0, 1200)
+      });
+      const message = resp.status === 401 || resp.status === 403
+        ? "AI provider rejected the configured API key"
+        : resp.status === 429
+          ? "AI provider rate limit or quota reached"
+          : resp.status === 400
+            ? `AI provider rejected the model or request (${model})`
+            : "AI provider request failed";
+      return res.status(502).json({
+        message,
+        providerStatus: resp.status,
+        model
       });
     }
 

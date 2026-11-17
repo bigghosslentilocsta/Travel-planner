@@ -51,6 +51,7 @@ export function useSocket(tripId: string | null, token: string | null, onEvent: 
       window.dispatchEvent(new CustomEvent("tp:chat:typing", { detail: payload }));
       onEvent("chat:typing", payload);
     });
+    socket.on("trip:member-exited", (payload) => onEvent("trip:member-exited", payload));
 
     return () => {
       socket.emit("trip:leave", { tripId });

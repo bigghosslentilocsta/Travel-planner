@@ -1,7 +1,7 @@
 // Renders the main navigation panel with a solid, consistent background.
-import { CalendarDays, CircleDollarSign, MapPinned } from "lucide-react";
+import { CalendarDays, CircleDollarSign, MapPinned, UserCircle } from "lucide-react";
 
-export type SidebarSection = "trips" | "itinerary" | "expenses";
+export type SidebarSection = "trips" | "itinerary" | "expenses" | "profile";
 
 type SidebarProps = {
   activeSection: SidebarSection;
@@ -11,7 +11,8 @@ type SidebarProps = {
 const navItems = [
   { label: "Trips", icon: MapPinned },
   { label: "Itinerary", icon: CalendarDays },
-  { label: "Expense Split", icon: CircleDollarSign }
+  { label: "Expense Split", icon: CircleDollarSign },
+  { label: "Profile", icon: UserCircle }
 ];
 
 // Solid indigo sidebar — always the same color, unaffected by the animated background.
@@ -27,7 +28,7 @@ export function Sidebar({ activeSection, onNavigate }: SidebarProps) {
       {/* Navigation links */}
       <nav className="space-y-2">
         {navItems.map(({ label, icon: Icon }, index) => {
-          const section = (index === 0 ? "trips" : index === 1 ? "itinerary" : "expenses") as SidebarSection;
+          const section = (["trips", "itinerary", "expenses", "profile"][index]) as SidebarSection;
           const isActive = activeSection === section;
 
           return (

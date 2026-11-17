@@ -83,9 +83,13 @@ export function ChatPanel({ tripId, token, currentUserId, trips, onSelectTrip }:
 
   const rendered = useMemo(() => messages.map((m) => (
     <div key={m._id} className={`flex items-start gap-3 ${m.sender._id === currentUserId ? "justify-end" : "justify-start"}`}>
-      {m.sender.avatarUrl && m.sender._id !== currentUserId && (
+      {m.sender._id !== currentUserId && (m.sender.avatarUrl ? (
         <img src={m.sender.avatarUrl} alt={m.sender.name} className="h-8 w-8 rounded-full object-cover" />
-      )}
+      ) : (
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600">
+          {(m.sender.name || "?")[0].toUpperCase()}
+        </div>
+      ))}
       <div className="max-w-[70%] rounded-xl bg-brand-50 border border-brand-100 p-3 text-sm text-slate-800">
         <div className="font-medium text-slate-600">{m.sender.name}</div>
         <div className="mt-1">{m.content}</div>
